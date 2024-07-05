@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shazam API Search</title>
+</head>
+<body>
+    <h1>Search Shazam API</h1>
+    <form id="searchForm" action="/search" method="POST">
+        <label for="term">Search Term:</label>
+        <input type="text" id="term" name="term" required>
+        <button type="submit">Search</button>
+    </form>
+    <h2>Results</h2>
+    <pre id="results"></pre>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const term = document.getElementById('term').value;
+            try {
+                const response = await fetch(`/search`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ term })
+                });
+                const data = await response.json();
+                document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('results').textContent = 'Error fetching data';
+            }
+        });
+    </script>
+</body>
+</html>
