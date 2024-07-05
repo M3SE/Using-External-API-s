@@ -53,7 +53,11 @@ app.post('/search', async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        res.json(response.data);
+        const tracks = response.data.tracks.hits.map(hit => ({
+            track: hit.track.title,
+            artist: hit.track.subtitle
+        }));
+        res.json(tracks);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch data from Shazam API' });

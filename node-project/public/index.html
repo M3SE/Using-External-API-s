@@ -4,20 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shazam API Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .track {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
 <body>
     <h1>Search Shazam API</h1>
-    <form id="searchForm" action="/search" method="POST">
+    <form id="searchForm">
         <label for="term">Search Term:</label>
         <input type="text" id="term" name="term" required>
         <button type="submit">Search</button>
     </form>
     <h2>Results</h2>
-    <pre id="results"></pre>
+    <div id="results"></div>
     <script>
         document.getElementById('searchForm').addEventListener('submit', async function(event) {
             event.preventDefault();
             const term = document.getElementById('term').value;
+            const resultsContainer = document.getElementById('results');
+            resultsContainer.textContent = 'Loading...';
+
             try {
                 const response = await fetch(`/search`, {
                     method: 'POST',
@@ -26,10 +39,23 @@
                     },
                     body: JSON.stringify({ term })
                 });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 const data = await response.json();
-                document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+                resultsContainer.innerHTML = '';
+                if (data.length === 0) {
+                    resultsContainer.textContent = 'No results found.';
+                } else {
+                    data.forEach(track => {
+                        const trackElement = document.createElement('div');
+                        trackElement.className = 'track';
+                        trackElement.innerHTML = `<strong>${track.track}</strong> by ${track.artist}`;
+                        resultsContainer.appendChild(trackElement);
+                    });
+                }
             } catch (error) {
-                document.getElementById('results').textContent = 'Error fetching data';
+                resultsContainer.textContent = `Error: ${error.message}`;
             }
         });
     </script>
